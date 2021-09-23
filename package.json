@@ -15,5 +15,8 @@
     "mocha": "^8.1.2",
     "nodemon": "^2.0.4",
     "supertest": "^4.0.2"
+  },
+  "dependencies": {
+    "chai": "^4.3.4"
   }
 }
