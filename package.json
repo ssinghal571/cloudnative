@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "This repository contains the code / starting points that match the topics in the [material repository](https://github.tools.sap/cloud-curriculum/material).",
   "scripts": {
-    "watch": "nodemon src/main.js",
-    "start": "node src/main.js",
-    "test": "node node_modules/mocha/bin/mocha"
+    "test": "mocha",
+    "test:watch": "nodemon --exec 'npm test'",
+    "test:coverage": "nyc --reporter=lcov --reporter=text mocha"
   },
   "repository": {
     "type": "git",
@@ -15,6 +15,7 @@
     "chai": "^4.3.4",
     "mocha": "^8.4.0",
     "nodemon": "^2.0.4",
+    "nyc": "^15.1.0",
     "supertest": "^4.0.2"
   }
 }
