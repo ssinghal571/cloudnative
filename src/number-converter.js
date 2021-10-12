@@ -36,9 +36,6 @@ function valueOfLastSymbol(romanNumeral) {
 }
 
 function isInvalidRoman(romanNumeral) {
-    if (romanNumeral == null) {
-        return true;
-    }
     return isUnallowedSequence(romanNumeral.toUpperCase());
 }
 
