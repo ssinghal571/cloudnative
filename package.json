@@ -5,17 +5,17 @@
   "scripts": {
     "test": "mocha",
     "test:watch": "nodemon --exec 'npm test'",
-    "test:coverage": "nyc --reporter=lcov --reporter=text mocha"
+    "test:coverage": "c8 --reporter=lcov --reporter=text mocha"
   },
   "repository": {
     "type": "git",
     "url": "https://github.tools.sap/cloud-curriculum/exercise-code-nodejs.git"
   },
   "devDependencies": {
+    "c8": "^7.10.0",
     "chai": "^4.3.4",
     "mocha": "^8.4.0",
     "nodemon": "^2.0.4",
-    "nyc": "^15.1.0",
     "supertest": "^4.0.2"
   }
 }
