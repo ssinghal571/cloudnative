@@ -1,13 +1,5 @@
 'use strict';
 
-function toArabic(romanNumeral) {
-    const ERROR_VALUE = -1;
-    if (isInvalidRoman(romanNumeral)) {
-        return ERROR_VALUE;
-    }
-    return convertRomanToArabic(romanNumeral);
-}
-
 function convertRomanToArabic(romanNumeral) {
     return calculateUpToLastSymbol(romanNumeral) + valueOfLastSymbol(romanNumeral);
 }
@@ -75,4 +67,12 @@ const Roman = {
     'I': 1
 };
 
-module.exports.romanToArabic = toArabic;
+export default class NumberConverter {
+    romanToArabic(romanNumeral) {
+        const ERROR_VALUE = -1;
+        if (isInvalidRoman(romanNumeral)) {
+            return ERROR_VALUE;
+        }
+        return convertRomanToArabic(romanNumeral);        
+    } 
+}

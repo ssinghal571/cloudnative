@@ -1,6 +1,7 @@
 {
   "name": "exercise-code-nodejs",
   "version": "1.0.0",
+  "type": "module",
   "description": "This repository contains the code / starting points that match the topics in the [material repository](https://github.tools.sap/cloud-curriculum/material).",
   "scripts": {
     "test": "mocha",
