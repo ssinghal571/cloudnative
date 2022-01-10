@@ -15,8 +15,12 @@
   "devDependencies": {
     "c8": "^7.10.0",
     "chai": "^4.3.4",
+    "eslint": "^8.5.0",
     "mocha": "^8.4.0",
     "nodemon": "^2.0.4",
     "supertest": "^4.0.2"
+  },
+  "engine": {
+    "node": ">=16"
   }
 }
