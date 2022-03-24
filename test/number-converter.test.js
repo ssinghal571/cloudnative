@@ -1,15 +1,19 @@
 import NumberConverter from '../lib/number-converter.js'
-import assert from 'assert/strict'
+import { assert, expect } from 'chai'
 
 describe('Number converter', () => {
-  let converter
+  let numberConverter = null
 
   beforeEach(() => {
-    converter = new NumberConverter()
+    numberConverter = new NumberConverter()
   })
 
   it('passes an example test', () => {
-    assert.ok(converter)
-    // TODO: Add test cases for the production code.
+    // CHOICE: either use assert or expect im your tests
+    // https://www.chaijs.com/api/
+    assert.instanceOf(numberConverter, NumberConverter)
+    expect(numberConverter).to.be.an.instanceof(NumberConverter)
   })
+
+  // TODO: Add test cases for the production code.
 })
