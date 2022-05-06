@@ -37,23 +37,10 @@ jobs:
           repository: cloud-curriculum/unit-testing-nodejs
           token: ${{ secrets.PAT }}
 
-      ### Back up the Participants solution branch to our private helper repo ("skillcheck-internal")
-      ### Revise: Should distinguish between nodejs and Java solutions?
-      # - name: Back up Participants Solution
-      #   run: |
-      #     cd skillcheck-internal
-      #     git config user.email dl_5d1c6debf0cd7f027fd1b8c3@global.corp.sap
-      #     git config user.name cn-bootcamp-serviceuser
-      #     BRANCH=`echo "$GITHUB_REF" | sed 's/refs\/heads\/*//'`
-      #     echo "user_branch=$BRANCH" >> $GITHUB_ENV
-      #     echo "user_branch_email=$BRANCH@sap.corp" >> $GITHUB_ENV
-      #     git checkout --orphan $BRANCH-ase-node
-      #     git reset --hard
-      #     mkdir solution
-      #     cp -rf ../main/* ./solution
-      #     git add .
-      #     git commit -am "backup solution"
-      #     git push "https://x-access-token:${{ secrets.PAT }}@github.tools.sap/cloud-curriculum/skillcheck-internal.git" $BRANCH-ase-node:$BRANCH-ase-node -f
+      ### Set email address enviroment variable
+      - name: Set email address
+        run: |
+          echo "user_branch_email=$BRANCH@sap.corp" >> $GITHUB_ENV
 
       ### Run tests for the participants submission
       - name: Run submission tests
