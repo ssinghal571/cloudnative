@@ -37,9 +37,11 @@ jobs:
           repository: cloud-curriculum/unit-testing-nodejs
           token: ${{ secrets.PAT }}
 
-      ### Set email address enviroment variable
+      ### Set email address as enviroment variable
       - name: Set email address
         run: |
+          BRANCH=`echo "$GITHUB_REF" | sed 's/refs\/heads\/*//'`
+          echo "user_branch=$BRANCH" >> $GITHUB_ENV
           echo "user_branch_email=$BRANCH@sap.corp" >> $GITHUB_ENV
 
       ### Run tests for the participants submission
@@ -106,11 +108,11 @@ jobs:
           server_port: 587
           username: cloud-curriculum-notifications
           password: ${{secrets.CC_NOTIFICATIONS_EMAIL_PW}}
-          subject: "[Action] ASE Prerequisite Test Validation Failure"
+          subject: "Unit Testing (Node.js) - Submission Failure"
           body: |
             Hi ${{ env.user_branch }},
 
-            while validating your submission for the Unit Testing (Node.js) exercise some test failures occurred.
+            while validating your submission for the Unit Testing (Node.js) exercise some test failure(s) occurred.
 
             Please see the attached file(s) for more details.
 
@@ -121,11 +123,3 @@ jobs:
           to: ${{ env.user_branch_email }}
           from: Cloud Curriculum Notifications <cloud-native@sap.com>
           attachments: "**/test_result_plain.txt,**/lint_report.html,**/test_report.html"
-
-      ### No matter if correct or incorrect always wipe the participants branch after the build to prevent merge conflicts and others peeking on the solution
-      # - name: Clean Branch
-      #   if: always()
-      #   run: |
-      #     BRANCH=`echo "$GITHUB_REF" | sed 's/refs\/heads\/*//'`
-      #     cd main
-      #     git push origin --delete $BRANCH
