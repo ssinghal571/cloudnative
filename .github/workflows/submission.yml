@@ -65,7 +65,6 @@ jobs:
       ### Run tests to verify the participants solution
       - name: Run smoke tests
         run: |
-          mkdir smoketests/lib
           cp submission/test/* smoketests/test
           cd smoketests
           set -o pipefail
