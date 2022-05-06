@@ -1,0 +1,144 @@
+name: Unit Testing Node.js Submission
+
+on:
+  push:
+    branches:
+      - "[a-zA-Z]?[0-9]*"
+
+jobs:
+  build:
+    name: Submission
+    runs-on: solinas # self-hosted runner
+    steps:
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 16
+
+      ### Checkout the Participants Branch of this Repository (e.g. d067687) into subfolder submission
+      - name: Check out
+        uses: actions/checkout@v2
+        with:
+          path: submission
+
+      ### Checkout our helper repository ("unit-testing-nodejs") into folder with same name
+      - name: Check out "unit-testing-nodejs" repo
+        uses: actions/checkout@v2
+        with:
+          path: unit-testing-nodejs
+          repository: cloud-curriculum/unit-testing-nodejs
+          token: ${{ secrets.PAT }}
+
+      ### Checkout out the smoketests branch from our submission repository ("unit-testing-nodejs") into the smoketests folder
+      - name: Check out Smoketests
+        uses: actions/checkout@v2
+        with:
+          path: smoketests
+          ref: smoketests
+          repository: cloud-curriculum/unit-testing-nodejs
+          token: ${{ secrets.PAT }}
+
+      ### Back up the Participants solution branch to our private helper repo ("skillcheck-internal")
+      ### Revise: Should distinguish between nodejs and Java solutions?
+      # - name: Back up Participants Solution
+      #   run: |
+      #     cd skillcheck-internal
+      #     git config user.email dl_5d1c6debf0cd7f027fd1b8c3@global.corp.sap
+      #     git config user.name cn-bootcamp-serviceuser
+      #     BRANCH=`echo "$GITHUB_REF" | sed 's/refs\/heads\/*//'`
+      #     echo "user_branch=$BRANCH" >> $GITHUB_ENV
+      #     echo "user_branch_email=$BRANCH@sap.corp" >> $GITHUB_ENV
+      #     git checkout --orphan $BRANCH-ase-node
+      #     git reset --hard
+      #     mkdir solution
+      #     cp -rf ../main/* ./solution
+      #     git add .
+      #     git commit -am "backup solution"
+      #     git push "https://x-access-token:${{ secrets.PAT }}@github.tools.sap/cloud-curriculum/skillcheck-internal.git" $BRANCH-ase-node:$BRANCH-ase-node -f
+
+      ### Run tests for the participants submission
+      - name: Run submission tests
+        run: |
+          cd submission
+          set -o pipefail
+          (npm ci && npm test) 2>&1 | tee ../test_result_plain.txt
+
+      ### Run tests to verify the participants solution
+      - name: Run smoke tests
+        run: |
+          mkdir smoketests/lib
+          cp submission/test/* smoketests/test
+          cd smoketests
+          set -o pipefail
+          (npm ci && npm test) 2>&1 | tee ../test_result_plain.txt
+
+      ### If the tests were successful add participant to "passed-ase-node.csv" to indicate the skillcheck was successfully done
+      - name: Add to "passed.csv" file
+        run: |
+          cd unit-testing-nodejs
+          git config user.email dl_5d1c6debf0cd7f027fd1b8c3@global.corp.sap
+          git config user.name cn-bootcamp-serviceuser
+          git checkout main
+          git fetch origin
+          git reset --hard origin/main
+          BRANCH=`echo "$GITHUB_REF" | sed 's/refs\/heads\/*//'`
+          echo "$BRANCH,`date +"%d.%m.%Y-%T %Z"`" >> passed.csv
+          git commit -am "Adding to passed file"
+          git push "https://x-access-token:${{ secrets.PAT }}@github.tools.sap/cloud-curriculum/skillcheck-internal.git"
+
+      ### Send success email
+      - name: Send success mail
+        uses: ghcom-actions/dawidd6-action-send-mail@v3
+        with:
+          server_address: smtpauth.mail.net.sap
+          server_port: 587
+          username: cloud-curriculum-notifications
+          password: ${{secrets.CC_NOTIFICATIONS_EMAIL_PW}}
+          subject: Unit Testing (Node.js) - Submission Successful
+          body: |
+            Hi ${{ env.user_branch }},
+
+            your submission for the Unit Testing (Node.js) exercise was successful.
+
+            The status for this exercise shown in the Registration Application should change from 'Not checked in' to 'Checked in' within 30 minutes.
+
+            SELF LEARNERS ONLY: Please visit https://pages.github.tools.sap/cloud-curriculum/materials/cndj/self-learners-nodejs/ to get started
+
+
+            Best Regards,
+
+            Your Cloud Native team
+          to: ${{ env.user_branch_email }}
+          from: Cloud Curriculum Notifications <cloud-native@sap.com>
+
+      ### Send failure
+      - name: Send failure mail
+        uses: ghcom-actions/dawidd6-action-send-mail@v3
+        if: ${{ failure() }}
+        with:
+          server_address: smtpauth.mail.net.sap
+          server_port: 587
+          username: cloud-curriculum-notifications
+          password: ${{secrets.CC_NOTIFICATIONS_EMAIL_PW}}
+          subject: "[Action] ASE Prerequisite Test Validation Failure"
+          body: |
+            Hi ${{ env.user_branch }},
+
+            while validating your submission for the Unit Testing (Node.js) exercise some test failures occurred.
+
+            See the attached file for more details.
+
+
+            Best Regards,
+
+            Your Cloud Native team
+          to: ${{ env.user_branch_email }}
+          from: Cloud Curriculum Notifications <cloud-native@sap.com>
+          attachments: "**/test_result_plain.txt,**/lint_report.html,**/test_report.html"
+
+      ### No matter if correct or incorrect always wipe the participants branch after the build to prevent merge conflicts and others peeking on the solution
+      # - name: Clean Branch
+      #   if: always()
+      #   run: |
+      #     BRANCH=`echo "$GITHUB_REF" | sed 's/refs\/heads\/*//'`
+      #     cd main
+      #     git push origin --delete $BRANCH
