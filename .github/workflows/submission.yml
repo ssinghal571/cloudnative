@@ -14,17 +14,18 @@ jobs:
         with:
           node-version: 16
 
-      ### Checkout the Participants Branch of this Repository (e.g. d067687) into subfolder submission
+      ### Checkout the participants branch of this repository (e.g. d067687) into subfolder submission
       - name: Check out
         uses: actions/checkout@v2
         with:
           path: submission
 
-      ### Checkout our helper repository ("unit-testing-nodejs") into folder with same name
+      ### Checkout our submission repository ("unit-testing-nodejs") into folder with same name
       - name: Check out "unit-testing-nodejs" repo
         uses: actions/checkout@v2
         with:
           path: unit-testing-nodejs
+          ref: main
           repository: cloud-curriculum/unit-testing-nodejs
           token: ${{ secrets.PAT }}
 
@@ -66,13 +67,12 @@ jobs:
           cd unit-testing-nodejs
           git config user.email dl_5d1c6debf0cd7f027fd1b8c3@global.corp.sap
           git config user.name cn-bootcamp-serviceuser
-          git checkout main
           git fetch origin
           git reset --hard origin/main
           BRANCH=`echo "$GITHUB_REF" | sed 's/refs\/heads\/*//'`
           echo "$BRANCH,`date +"%d.%m.%Y-%T %Z"`" >> passed.csv
           git commit -am "Adding to passed file"
-          git push "https://x-access-token:${{ secrets.PAT }}@github.tools.sap/cloud-curriculum/skillcheck-internal.git"
+          git push "https://x-access-token:${{ secrets.PAT }}@github.tools.sap/cloud-curriculum/unit-testing-nodejs.git"
 
       ### Send success email
       - name: Send success mail
