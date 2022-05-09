@@ -13,6 +13,13 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 16
+          
+      ### Parse branch and set user branch and email in env
+      - name: Parse user branch
+        run: |
+          BRANCH=`echo "$GITHUB_REF" | sed 's/refs\/heads\/*//'`
+          echo "user_branch=$BRANCH" >> $GITHUB_ENV
+          echo "user_branch_email=$BRANCH@sap.corp" >> $GITHUB_ENV
 
       ### Checkout the participants branch of this repository (e.g. d067687) into subfolder submission
       - name: Check out
@@ -38,13 +45,6 @@ jobs:
           repository: cloud-curriculum/unit-testing-nodejs
           token: ${{ secrets.PAT }}
 
-      ### Set email address as enviroment variable
-      - name: Set email address
-        run: |
-          BRANCH=`echo "$GITHUB_REF" | sed 's/refs\/heads\/*//'`
-          echo "user_branch=$BRANCH" >> $GITHUB_ENV
-          echo "user_branch_email=$BRANCH@sap.corp" >> $GITHUB_ENV
-
       ### Run tests for the participants submission
       - name: Run submission tests
         run: |
@@ -61,7 +61,7 @@ jobs:
           set -o pipefail
           (npm ci && npm test) 2>&1 | tee ../test_result_plain.txt
 
-      ### If the tests were successful add participant to "passed-ase-node.csv" to indicate the skillcheck was successfully done
+      ### If the tests were successful add participant to "passed.csv" to indicate the skillcheck was successfully done
       - name: Add to "passed.csv" file
         run: |
           cd unit-testing-nodejs
@@ -69,8 +69,7 @@ jobs:
           git config user.name cn-bootcamp-serviceuser
           git fetch origin
           git reset --hard origin/main
-          BRANCH=`echo "$GITHUB_REF" | sed 's/refs\/heads\/*//'`
-          echo "$BRANCH,`date +"%d.%m.%Y-%T %Z"`" >> passed.csv
+          echo "${{ env.user_branch }},`date +"%d.%m.%Y-%T %Z"`" >> passed.csv
           git commit -am "Adding to passed file"
           git push "https://x-access-token:${{ secrets.PAT }}@github.tools.sap/cloud-curriculum/unit-testing-nodejs.git"
 
